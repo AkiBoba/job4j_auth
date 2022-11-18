@@ -50,7 +50,7 @@ public class PersonController {
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
         var newperson = persons.save(person);
-        if (newperson.equals(null)) {
+        if (persons.findById(newperson.getId()).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Проверьте передаваемые параметры");
         }
         return ResponseEntity.ok().build();
@@ -58,13 +58,12 @@ public class PersonController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        if (persons.findById(id).isPresent()) {
-            Person person = new Person();
-            person.setId(id);
-            persons.delete(person);
-            return ResponseEntity.ok().build();
-        } else {
+        if (persons.findById(id).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Проверьте передаваемые параметры");
         }
+        Person person = new Person();
+        person.setId(id);
+        persons.delete(person);
+        return ResponseEntity.ok().build();
     }
 }
