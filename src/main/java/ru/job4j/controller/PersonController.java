@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.domain.Person;
+import ru.job4j.dto.PersonDTO;
 import ru.job4j.repository.PersonRepository;
 import ru.job4j.service.PersonService;
 
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -96,6 +98,15 @@ public class PersonController {
         }
         person.setPassword(encoder.encode(person.getPassword()));
         persons.save(person);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<PersonDTO> patch(@PathVariable int id, @RequestBody PersonDTO personDTO) {
+        var person = persons.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no user with this id"));
+        person.setLogin(personDTO.getLogin());
+        person.setPassword(personDTO.getPassword());
+        return ResponseEntity.of(Optional.of(new PersonDTO(person.getLogin(), person.getPassword())));
     }
 
     @ExceptionHandler(value = { IllegalArgumentException.class })
